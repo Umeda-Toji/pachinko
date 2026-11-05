@@ -6,5 +6,7 @@ export default defineConfig({
   test: {
     include: ['tests/**/*.test.ts'],
     environment: 'node',
+    // 入賞率の表などを、テストが通ったときも表示する
+    silent: false,
   },
 });

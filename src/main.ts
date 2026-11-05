@@ -1,5 +1,5 @@
 import './style.css';
-import { GAME_TITLE } from './title';
+import { GAME_TITLE } from './title.ts';
 
 const app = document.querySelector<HTMLDivElement>('#app');
 if (app) {
