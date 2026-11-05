@@ -1,0 +1,22 @@
+# 依存パッケージ
+node_modules/
+
+# ビルド結果
+dist/
+*.tsbuildinfo
+
+# ログ
+*.log
+npm-debug.log*
+
+# エディタとOS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 環境変数
+.env
+.env.*
