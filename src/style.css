@@ -1,27 +1,285 @@
 :root {
   color-scheme: dark;
+  --bg: #0b0708;
+  --text: #e8d9c4;
+  --muted: #a89a88;
+  --accent: #c8323c;
+  --panel: rgba(20, 14, 18, 0.82);
+  --line: rgba(232, 217, 196, 0.18);
+}
+
+* {
+  box-sizing: border-box;
 }
 
 html,
 body {
   margin: 0;
   height: 100%;
-  background: #0b0708;
-  color: #e8d9c4;
-  font-family: 'Yu Mincho', 'Hiragino Mincho ProN', serif;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Yu Gothic UI', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  /* スマホでのダブルタップ拡大やスクロールを防ぐ */
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 #app {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+}
+
+.stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.board-canvas {
+  display: block;
+  width: 100%;
   height: 100%;
 }
 
-h1 {
-  margin: 0;
-  font-size: clamp(2rem, 8vw, 4rem);
+/* 題名と情報: PCは盤面の左上に重ねる */
+.topbar {
+  position: absolute;
+  top: 10px;
+  left: 14px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.title {
+  margin: 0 0 8px;
+  font-family: 'Yu Mincho', 'Hiragino Mincho ProN', serif;
+  font-size: 22px;
   letter-spacing: 0.2em;
-  color: #c8323c;
-  text-shadow: 0 0 16px rgba(200, 50, 60, 0.6);
+  color: var(--accent);
+  text-shadow: 0 0 12px rgba(200, 50, 60, 0.6);
+  pointer-events: none;
+}
+
+.hud {
+  min-width: 190px;
+  padding: 8px 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.hud-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  line-height: 1.6;
+}
+
+.hud-label {
+  color: var(--muted);
+}
+
+.hud-value {
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-balls .hud-value {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.hud-status {
+  margin-top: 4px;
+  color: var(--accent);
+  font-size: 13px;
+  min-height: 1.4em;
+}
+
+/* 操作部品: PCは右下に重ねる */
+.controls {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.handle {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  cursor: grab;
+  touch-action: none;
+}
+
+.handle:active {
+  cursor: grabbing;
+}
+
+.handle svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.handle-ring {
+  fill: #1a1418;
+  stroke: var(--line);
+  stroke-width: 2;
+}
+
+.handle-range {
+  fill: none;
+  stroke: rgba(200, 50, 60, 0.45);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.handle-knob {
+  fill: #3a3036;
+  stroke: #8a7a70;
+  stroke-width: 2;
+}
+
+.handle-mark {
+  stroke: var(--text);
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.handle-value {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -20px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.stopper {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  background: #2a2026;
+  color: var(--text);
+  font-size: 15px;
+  font-family: inherit;
+  touch-action: none;
+  cursor: pointer;
+}
+
+.stopper.active {
+  background: var(--accent);
+  border-color: #ff8a8f;
+}
+
+/* スマホの縦画面: 上から 題名と情報 → 盤面 → 操作部品 */
+@media (max-aspect-ratio: 4/5) {
+  .topbar {
+    position: static;
+    padding: 8px 12px 0;
+  }
+
+  .title {
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+
+  .hud {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 14px;
+    min-width: 0;
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .hud-row {
+    gap: 8px;
+  }
+
+  .hud-status {
+    grid-column: 1 / -1;
+  }
+
+  .hud-balls .hud-value {
+    font-size: 15px;
+  }
+
+  .controls {
+    position: static;
+    justify-content: center;
+    padding: 8px 16px 28px;
+    gap: 32px;
+  }
+}
+
+/* 調整パネル(開発中のみ) */
+.dev-panel {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  width: 260px;
+  max-height: calc(100dvh - 20px);
+  overflow: auto;
+  padding: 8px 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 13px;
+  touch-action: auto;
+  -webkit-user-select: auto;
+  user-select: auto;
+}
+
+.dev-panel summary {
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.dev-stats {
+  display: flex;
+  justify-content: space-between;
+  margin: 6px 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.dev-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 8px;
+  margin: 8px 0;
+}
+
+.dev-row input {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.dev-row output {
+  font-variant-numeric: tabular-nums;
+}
+
+.dev-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.dev-buttons button {
+  font-family: inherit;
+  font-size: 12px;
+  padding: 4px 8px;
 }

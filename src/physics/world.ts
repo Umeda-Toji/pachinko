@@ -91,6 +91,15 @@ export class PhysicsWorld {
 
     this.rest = new Float64Array(5);
     this.fric = new Float64Array(5);
+    this.applyParams();
+  }
+
+  /**
+   * params の反発と摩擦を計算用の表に写す。
+   * 調整パネルなどで params を書き換えたら呼ぶ(重力などはそのまま反映される)。
+   */
+  applyParams(): void {
+    const params = this.params;
     this.rest[MAT_NAIL] = params.restitution.nail;
     this.rest[MAT_WALL] = params.restitution.wall;
     this.rest[MAT_RAIL] = params.restitution.rail;
